@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yurt Rezervasyon</title>
+    <link rel="stylesheet" href="..static/style.css">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .navbar { background-color: #e91e63; padding: 15px; color: white; display: flex; justify-content: space-between; }
+        .menu a { color: white; text-decoration: none; font-weight: bold; margin-right: 20px; }
+        .content { padding: 20px; }
+        .container { width: 50%; margin: auto; padding: 20px; }
+        label, select, textarea, input { display: block; width: 100%; margin-bottom: 10px; }
+        button { background-color: #e91e63; color: white; padding: 10px; border: none; cursor: pointer; }
+        button:hover { background-color: #d81b60; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="menu">
+            <a href="#">Genciz</a>
+            <a href="#">Sporcuyuz</a>
+            <a href="#">Yurt İşlemleri</a>
+            <a href="#">Kredi / Burs</a>
+            <a href="#">Fırsatlar</a>
+            <a href="#">Eğitim</a>
+            <a href="#">Genç Rezervasyon</a>
+        
+        </div>
+    </div>
+    
+    <div class="content">
+        <h1>Yurt Rezervasyon</h1>
+        <p>Buradan yurt rezervasyon işlemlerinizi gerçekleştirebilirsiniz.</p>
+        <div class="container">
+            <form id="reservationForm">
+                <label for="city">İl Seçin:</label>
+                <select id="city" name="city" onchange="updateDistricts()">
+                    <option value="">İl Seçin</option>
+                </select>
+                
+                <label for="district">İlçe Seçin:</label>
+                <select id="district" name="district" onchange="updateDorms()" disabled>
+                    <option value="">Önce İl Seçin</option>
+                </select>
+                
+                <label for="dorm">KYK Yurdu Seçin:</label>
+                <select id="dorm" name="dorm" disabled>
+                    <option value="">Önce İlçe Seçin</option>
+                </select>
+                
+                <label for="start_date">Başlangıç Tarihi:</label>
+                <input type="date" id="start_date" name="start_date" required>
+                
+                <label for="end_date">Bitiş Tarihi:</label>
+                <input type="date" id="end_date" name="end_date" required>
+                
+                <label for="reason">Başvuru Sebebi:</label>
+                <textarea id="reason" name="reason" required></textarea>
+
+                <label for="document">Belge Yükleyin:</label>
+                <input type="file" id="document" name="document" accept=".pdf,.doc,.docx,.jpg,.png">
+                
+                
+                <button type="button" onclick="submitForm()">Başvur</button>
+            </form>
+            <p id="result"></p>
+        </div>
+    </div>
+
+    <script>
+        const cities = {
+            "İstanbul": ["Kadıköy", "Beşiktaş", "Üsküdar"],
+            "Ankara": ["Çankaya", "Keçiören", "Altındağ"],
+            "İzmir": ["Bornova", "Konak", "Karşıyaka"],
+            "Bursa": ["Osmangazi", "Nilüfer", "Yıldırım"],
+            "Antalya": ["Muratpaşa", "Kepez", "Konyaaltı"]
+        };
+        
+        const dorms = {
+            "Kadıköy": ["Kadıköy KYK", "Moda KYK"],
+            "Beşiktaş": ["Beşiktaş KYK", "Ortaköy KYK"],
+            "Çankaya": ["Çankaya KYK", "Kızılay KYK"],
+            "Bornova": ["Bornova KYK", "Ege KYK"],
+            "Osmangazi": ["Osmangazi KYK", "Görükle KYK"],
+            "Muratpaşa": ["Muratpaşa KYK", "Lara KYK"]
+        };
+        
+        function populateCities() {
+            let citySelect = document.getElementById("city");
+            Object.keys(cities).forEach(city => {
+                let option = document.createElement("option");
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+        }
+        
+        function updateDistricts() {
+            let citySelect = document.getElementById("city");
+            let districtSelect = document.getElementById("district");
+            let dormSelect = document.getElementById("dorm");
+            let selectedCity = citySelect.value;
+            
+            districtSelect.innerHTML = '<option value="">İlçe Seçin</option>';
+            dormSelect.innerHTML = '<option value="">Önce İlçe Seçin</option>';
+            dormSelect.disabled = true;
+            
+            if (selectedCity) {
+                cities[selectedCity].forEach(district => {
+                    let option = document.createElement("option");
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+                districtSelect.disabled = false;
+            } else {
+                districtSelect.disabled = true;
+            }
+        }
+        
+        function updateDorms() {
+            let districtSelect = document.getElementById("district");
+            let dormSelect = document.getElementById("dorm");
+            let selectedDistrict = districtSelect.value;
+            
+            dormSelect.innerHTML = '<option value="">KYK Seçin</option>';
+            
+            if (selectedDistrict && dorms[selectedDistrict]) {
+                dorms[selectedDistrict].forEach(dorm => {
+                    let option = document.createElement("option");
+                    option.value = dorm;
+                    option.textContent = dorm;
+                    dormSelect.appendChild(option);
+                });
+                dormSelect.disabled = false;
+            } else {
+                dormSelect.disabled = true;
+            }
+        }
+        
+        // Sayfa yüklendiğinde illeri listele
+        document.addEventListener("DOMContentLoaded", populateCities);
+
+
+    function submitForm() {
+        let city = document.getElementById("city").value;
+        let district = document.getElementById("district").value;
+        let dorm = document.getElementById("dorm").value;
+        let startDate = document.getElementById("start_date").value;
+        let endDate = document.getElementById("end_date").value;
+        let reason = document.getElementById("reason").value;
+        let documentFile = document.getElementById("document").files[0];
+
+        if (!city || !district || !dorm || !startDate || !endDate || !reason || !documentFile) {
+            alert("Lütfen tüm alanları doldurun!");
+            return;
+        }
+
+        let formData = new FormData();
+    formData.append("city", city);
+    formData.append("district", district);
+    formData.append("dorm", dorm);
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
+    formData.append("reason", reason);
+    formData.append("document", documentFile);
+        fetch("http://127.0.0.1:5000/apply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("result").innerText = 
+                "Başvurunuz alındı! Tahmini Öncelik Skoru: " + data.priority_score.toFixed(2);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Bir hata oluştu, lütfen tekrar deneyin.");
+        });
+    }
+
+    </script>
+</body>
+</html>
